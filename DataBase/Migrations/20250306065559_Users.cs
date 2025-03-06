@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -39,12 +40,10 @@ namespace DataBase.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Status = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Login_attempts = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Last_login = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Status_login = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Login_attempts = table.Column<int>(type: "int", nullable: true),
+                    Lockout_EndTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    Last_login = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    Status_login = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     Created_at = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Updated_at = table.Column<string>(type: "longtext", nullable: true)
