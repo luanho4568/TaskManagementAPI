@@ -6,7 +6,6 @@ using System.Security.Claims;
 using System.Text;
 using TaskManagementAPI.Utilities.Cookies;
 using TaskManagementAPI.Utilities.Constants;
-using TaskManagementAPI.Utilities.Sessions;
 using Microsoft.EntityFrameworkCore;
 namespace TaskManagementAPI.Utilities.JwtAuthentication
 {
@@ -31,7 +30,7 @@ namespace TaskManagementAPI.Utilities.JwtAuthentication
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id),
             new Claim(ClaimTypes.Name, user.Name),
-            new Claim(ClaimTypes.Email,user.Email == null ? string.Empty : user.Email),
+            new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
             new Claim(ClaimTypes.Role, user.Role),
         };
 
@@ -106,80 +105,27 @@ namespace TaskManagementAPI.Utilities.JwtAuthentication
         }
 
         //Kiểm tra hết hạn token
-        public bool ValidateTokenExpiration(string token, HttpContext context)
+        public bool IsTokenExpired(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
 
             try
             {
-                var validationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = false, // Không tự động kiểm tra thời gian hết hạn, kiểm tra thủ công
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = _jwtSettings.Issuer,
-                    ValidAudience = _jwtSettings.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret))
-                };
+                var jwtToken = tokenHandler.ReadJwtToken(token);
+                var expClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Exp);
 
-                var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
-
-                if (validatedToken is JwtSecurityToken jwtToken)
+                if (expClaim != null && long.TryParse(expClaim.Value, out long exp))
                 {
-                    var expClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "exp");
-                    if (expClaim != null && long.TryParse(expClaim.Value, out long exp))
-                    {
-                        var expirationTime = DateTimeOffset.FromUnixTimeSeconds(exp).UtcDateTime;
-                        if (DateTime.UtcNow > expirationTime)
-                        {
-                            return false;
-                        }
-                        return true;
-                    }
+                    var expirationTime = DateTimeOffset.FromUnixTimeSeconds(exp).UtcDateTime;
+                    return DateTime.UtcNow > expirationTime;
                 }
             }
             catch
             {
-                return false;
+                return true;
             }
-            return false;
+
+            return true;
         }
-
-
-        //Xử lý gia hạn thêm session
-        public async Task RenewSession(HttpContext context)
-        {
-            var sessionUser = context.Session.Get<Users>(Constant.KeySessionUser);
-            var token = context.Request.GetCookie(Constant.KeyTokenCookie);
-            if (!string.IsNullOrEmpty(token))
-            {
-                if (sessionUser == null)
-                {
-                    try
-                    {
-                        var claims = DecodeToken(token);
-                        if (!claims.TryGetValue("nameid", out string nameid))
-                        {
-                            Console.WriteLine("Không có token");
-                            return;
-                        }
-                        var user = await _db.Users.FirstOrDefaultAsync(x => x.Id == nameid);
-                        if (user == null)
-                        {
-                            Console.WriteLine("Không tìm thấy user");
-                            return;
-                        }
-                        context.Session.Set(Constant.KeySessionUser, user);
-                    }
-                    catch (Exception e)
-                    {
-
-                        Console.WriteLine("Lỗi khi giải mã token hoặc lấy thông tin người dùng: " + e.Message);
-                    }
-                }
-            }
-        }
-
     }
 }

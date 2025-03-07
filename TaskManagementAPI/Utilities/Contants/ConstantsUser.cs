@@ -1,11 +1,5 @@
 ﻿namespace TaskManagementAPI.Utilities.Constants
 {
-    public static class Constant
-    {
-        public const string KeyTokenCookie = "JWT_Token";
-        public const string KeySessionUser = "Session_User";
-    }
-
     public static class StatusConstant
     {
         public const string True = "true";

@@ -13,12 +13,14 @@
     /// <summary>
     /// Trạng thái kiểm tra đăng nhập
     /// </summary>
-    public enum CheckLoginStatus
+    public enum TokenStatus
     {
-        NotLoggedIn = -1,        // Chưa đăng nhập
-        SessionExpired = -2,    // Đăng nhập hết hạn
-        Active = 0              // Người dùng đang hoạt động
+        Invalid = -2,       // Token không hợp lệ
+        Expired = -1,       // Token đã hết hạn
+        Active = 0          // Token hợp lệ
     }
+
+
 
     /// <summary>
     /// Trạng thái đăng xuất

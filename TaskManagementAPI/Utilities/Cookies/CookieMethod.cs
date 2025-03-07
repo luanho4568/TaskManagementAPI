@@ -12,7 +12,8 @@
             {
                 HttpOnly = true,
                 Expires = DateTimeOffset.Now.AddDays(expireTime),
-                Secure = true,
+                Secure = false, // chỉ gửi qua https
+                SameSite = SameSiteMode.Strict,
             };
             response.Cookies.Append(key, value, options);
         }

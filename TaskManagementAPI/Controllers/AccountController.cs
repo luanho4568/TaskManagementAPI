@@ -3,12 +3,12 @@ using DataBase.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TaskManagementAPI.Models;
 using TaskManagementAPI.Services.Account;
 using TaskManagementAPI.Utilities.Constants;
 using TaskManagementAPI.Utilities.Cookies;
 using TaskManagementAPI.Utilities.Enums;
 using TaskManagementAPI.Utilities.JwtAuthentication;
-using TaskManagementAPI.Utilities.Sessions;
 
 namespace TaskManagementAPI.Controllers
 {
@@ -32,16 +32,17 @@ namespace TaskManagementAPI.Controllers
         }
 
         [HttpPost("Login")]
-        public async Task<ActionResult> Login([FromBody] Users model)
+        public async Task<ActionResult> Login([FromBody] LoginVM model)
         {
             try
             {
-                var (success, message) = await _accountService.LoginService(model);
+                var (success, message, token) = await _accountService.LoginService(model);
 
                 return Ok(new
                 {
                     status = (int)success,
                     message = message,
+                    token
                 });
             }
             catch (Exception ex)
@@ -54,37 +55,35 @@ namespace TaskManagementAPI.Controllers
                 });
             }
         }
-
-        [HttpGet("CheckUserLogin")]
-        public async Task<IActionResult> CheckUserLogin()
+        [HttpGet("CheckToken")]
+        public IActionResult CheckToken()
         {
-            try
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            if (string.IsNullOrEmpty(token))
             {
-                var (success, message) = await _accountService.CheckUserLoginService();
+                return Unauthorized(new { status = TokenStatus.Invalid, message = "Token không hợp lệ!" });
+            }
 
-                return Ok(new
-                {
-                    status = (int)success,
-                    message = message,
-                });
-            }
-            catch (Exception ex)
+            if (_jwtService.IsTokenExpired(token))
             {
-                return StatusCode(500, new
-                {
-                    status = 500,
-                    message = "Đã có lỗi xảy ra ở server",
-                    error = ex.Message
-                });
+                return Unauthorized(new { status = TokenStatus.Expired, message = "Token đã hết hạn!" });
             }
+
+            var claims = _jwtService.DecodeToken(token);
+            if (claims == null || claims.Count == 0)
+            {
+                return Unauthorized(new { status = TokenStatus.Invalid, message = "Token không hợp lệ!" });
+            }
+
+            return Ok(new { status = TokenStatus.Active, message = "Token hợp lệ", data = claims });
         }
 
         [HttpPost("Logout")]
-        public async Task<IActionResult> Logout()
+        public async Task<IActionResult> Logout(string? id)
         {
             try
             {
-                var (success, message) = await _accountService.LogoutService();
+                var (success, message) = await _accountService.LogoutService(id);
                 return Ok(new
                 {
                     status = (int)success,
