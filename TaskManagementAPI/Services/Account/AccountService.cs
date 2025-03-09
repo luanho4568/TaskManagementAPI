@@ -30,7 +30,7 @@ namespace TaskManagementAPI.Services.Account
         public async Task<(LoginStatus, string, string)> LoginService([FromBody] LoginVM model)
         {
 
-            var user = await _db.Users.FirstOrDefaultAsync(x => x.Email == model.Email);
+            var user = await _db.Users.FirstOrDefaultAsync(x => x.Email == model.Email && x.Type == TypeConstant.Local);
             if (user == null)
             {
                 return (LoginStatus.InvalidCredentials, "Email không tồn tại!", string.Empty);
@@ -64,7 +64,7 @@ namespace TaskManagementAPI.Services.Account
             //    return (LoginStatus.InvalidCredentials, "Token đã hết hạn, vui lòng đăng nhập lại!", string.Empty);
             //}
 
-            user.Status = StatusConstant.True;
+            user.Status = StatusConstant.Online;
             user.Last_login = DateTime.Now;
             user.Login_attempts = 0;
             user.Lockout_EndTime = null;
@@ -73,14 +73,14 @@ namespace TaskManagementAPI.Services.Account
             return (LoginStatus.Success, "Đăng nhập thành công", token);
         }
 
-        public async Task<(LogoutStatus, string)> LogoutService(string? id)
+        public async Task<(LogoutStatus, string)> LogoutService([FromBody] LogoutVM model)
         {
-            var userLogin = await _db.Users.FindAsync(id);
+            var userLogin = await _db.Users.FindAsync(model.id);
             if (userLogin == null)
             {
                 return (LogoutStatus.NotLoggedIn, "Không có người dùng");
             }
-            userLogin.Status = StatusConstant.False;
+            userLogin.Status = StatusConstant.Offline;
             userLogin.Status_login = DateTime.Now;
             _db.Entry(userLogin).State = EntityState.Modified;
             await _db.SaveChangesAsync();

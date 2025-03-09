@@ -2,8 +2,8 @@
 {
     public static class StatusConstant
     {
-        public const string True = "true";
-        public const string False = "false";
+        public const string Online = "true";
+        public const string Offline = "false";
     }
 
     public static class TypeConstant

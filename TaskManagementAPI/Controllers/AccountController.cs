@@ -79,11 +79,11 @@ namespace TaskManagementAPI.Controllers
         }
 
         [HttpPost("Logout")]
-        public async Task<IActionResult> Logout(string? id)
+        public async Task<IActionResult> Logout([FromBody] LogoutVM model)
         {
             try
             {
-                var (success, message) = await _accountService.LogoutService(id);
+                var (success, message) = await _accountService.LogoutService(model);
                 return Ok(new
                 {
                     status = (int)success,
