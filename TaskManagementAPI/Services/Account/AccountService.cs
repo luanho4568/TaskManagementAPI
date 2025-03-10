@@ -27,7 +27,7 @@ namespace TaskManagementAPI.Services.Account
             _configuration = configuration;
             _context = context;
         }
-        public async Task<(LoginStatus, string, string)> LoginService([FromBody] LoginVM model)
+        public async Task<(LoginStatus, string, string)> LoginService([FromBody] LoginDTO model)
         {
 
             var user = await _db.Users.FirstOrDefaultAsync(x => x.Email == model.Email && x.Type == TypeConstant.Local);
@@ -73,9 +73,9 @@ namespace TaskManagementAPI.Services.Account
             return (LoginStatus.Success, "Đăng nhập thành công", token);
         }
 
-        public async Task<(LogoutStatus, string)> LogoutService([FromBody] LogoutVM model)
+        public async Task<(LogoutStatus, string)> LogoutService(string id)
         {
-            var userLogin = await _db.Users.FindAsync(model.id);
+            var userLogin = await _db.Users.FindAsync(id);
             if (userLogin == null)
             {
                 return (LogoutStatus.NotLoggedIn, "Không có người dùng");
@@ -113,8 +113,10 @@ namespace TaskManagementAPI.Services.Account
                 Password = model.Password,
                 Type = TypeConstant.Local,
                 Role = RoleConstant.Member,
-                Created_at = DateTime.Now
+                Created_at = DateTime.Now,
+                PersonalLink = CommFunc.GetNextAutoIncrementValue<Users>(_db, x => x.PersonalLink)
             };
+
             await _db.AddAsync(newUser);
             await _db.SaveChangesAsync();
             return (RegisterStatus.Success, "Đăng ký thành công!");

@@ -21,6 +21,7 @@ namespace DataBase.Models
         public string? Phone { get; set; }
         public string? Address { get; set; }
         public string? Avatar { get; set; }
+        public int? PersonalLink { get; set; } // Link cá nhân
         public string? Type { get; set; } // phương thức đăng nhập
         public string? Bio { get; set; } // giới thiệu
         public string? Status { get; set; } // online off

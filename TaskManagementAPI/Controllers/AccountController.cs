@@ -32,7 +32,7 @@ namespace TaskManagementAPI.Controllers
         }
 
         [HttpPost("Login")]
-        public async Task<ActionResult> Login([FromBody] LoginVM model)
+        public async Task<ActionResult> Login([FromBody] LoginDTO model)
         {
             try
             {
@@ -79,11 +79,11 @@ namespace TaskManagementAPI.Controllers
         }
 
         [HttpPost("Logout")]
-        public async Task<IActionResult> Logout([FromBody] LogoutVM model)
+        public async Task<IActionResult> Logout([FromBody] GetUserId model)
         {
             try
             {
-                var (success, message) = await _accountService.LogoutService(model);
+                var (success, message) = await _accountService.LogoutService(model.id);
                 return Ok(new
                 {
                     status = (int)success,
