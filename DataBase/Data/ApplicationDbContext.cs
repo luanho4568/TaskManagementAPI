@@ -20,5 +20,8 @@ namespace DataBase.Data
         }
 
         public DbSet<Users> Users { get; set; }
+        public DbSet<Group> Group { get; set; }
+        public DbSet<Group_Level> Group_Level { get; set; }
+        public DbSet<Group_Member> Group_Member { get; set; }
     }
 }

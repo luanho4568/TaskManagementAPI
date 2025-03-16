@@ -1,4 +1,5 @@
 ﻿using TaskManagementAPI.Services.Account;
+using TaskManagementAPI.Services.Group;
 using TaskManagementAPI.Services.Profile;
 using TaskManagementAPI.Utilities.JwtAuthentication;
 
@@ -12,6 +13,7 @@ namespace TaskManagementAPI.Utilities.ProgramSupport
             builder.Services.AddScoped<JwtService>();
             builder.Services.AddScoped<AccountService>();
             builder.Services.AddScoped<ProfileService>();
+            builder.Services.AddScoped<GroupService>();
         }
     }
 }

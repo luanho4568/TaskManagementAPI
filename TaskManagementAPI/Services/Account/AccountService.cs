@@ -27,18 +27,18 @@ namespace TaskManagementAPI.Services.Account
             _configuration = configuration;
             _context = context;
         }
-        public async Task<(LoginStatus, string, string)> LoginService([FromBody] LoginDTO model)
+        public async Task<(LoginStatus, string, string, string)> LoginService([FromBody] LoginDTO model)
         {
 
             var user = await _db.Users.FirstOrDefaultAsync(x => x.Email == model.Email && x.Type == TypeConstant.Local);
             if (user == null)
             {
-                return (LoginStatus.InvalidCredentials, "Email không tồn tại!", string.Empty);
+                return (LoginStatus.InvalidCredentials, "Email không tồn tại!", string.Empty, string.Empty);
             }
             if (user.Lockout_EndTime.HasValue && user.Lockout_EndTime.Value > DateTime.UtcNow)
             {
                 var remainingTime = (user.Lockout_EndTime.Value - DateTime.UtcNow).TotalSeconds;
-                return (LoginStatus.LockedOut, $"Tài khoản đang bị khóa, vui lòng thử lại sau {remainingTime:F0} giây!", string.Empty);
+                return (LoginStatus.LockedOut, $"Tài khoản đang bị khóa, vui lòng thử lại sau {remainingTime:F0} giây!", string.Empty, string.Empty);
             }
 
             var isPasswordValid = CommFunc.VerifyPassword(model.Password, user.HashPassword);
@@ -55,7 +55,7 @@ namespace TaskManagementAPI.Services.Account
                 _db.Entry(user).State = EntityState.Modified;
                 await _db.SaveChangesAsync();
 
-                return (LoginStatus.InvalidCredentials, "Email hoặc mật khẩu không đúng!", string.Empty);
+                return (LoginStatus.InvalidCredentials, "Email hoặc mật khẩu không đúng!", string.Empty, string.Empty);
             }
 
             var token = _jwtService.GenerateToken(user);
@@ -70,7 +70,7 @@ namespace TaskManagementAPI.Services.Account
             user.Lockout_EndTime = null;
             _db.Entry(user).State = EntityState.Modified;
             await _db.SaveChangesAsync();
-            return (LoginStatus.Success, "Đăng nhập thành công", token);
+            return (LoginStatus.Success, "Đăng nhập thành công", token, user.Avatar);
         }
 
         public async Task<(LogoutStatus, string)> LogoutService(string id)

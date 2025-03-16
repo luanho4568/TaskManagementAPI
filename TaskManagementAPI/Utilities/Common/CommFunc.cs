@@ -17,7 +17,7 @@ namespace TaskManagementAPI.Utilities.Common
                           .Replace("=", "")
                           .Replace("/", "")
                           .Replace("+", "")
-                          .Substring(0, 12);
+                          .Substring(0, 15);
         }
 
         // Hash password với độ phức tạp (work factor) là 12

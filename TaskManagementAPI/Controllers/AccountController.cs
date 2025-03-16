@@ -36,13 +36,14 @@ namespace TaskManagementAPI.Controllers
         {
             try
             {
-                var (success, message, token) = await _accountService.LoginService(model);
+                var (success, message, token, avatar) = await _accountService.LoginService(model);
 
                 return Ok(new
                 {
                     status = (int)success,
                     message = message,
-                    token
+                    token,
+                    avatar
                 });
             }
             catch (Exception ex)
