@@ -40,12 +40,14 @@ namespace TaskManagementAPI.Services.Group
                 Status = Status.Active.ToString(),
                 Joined_at = DateTime.Now    
             };
+            var user = await _db.Users.FirstOrDefaultAsync(x => x.Id == model.UserId);
             var newChatGroup = new ChatGroup
             {
                 Id = CommFunc.NewShortId(),
                 GroupId = newGroup.Id,
                 Name = "Default",
                 IsDefault = true,
+                CreatedBy = user.Name,
                 CreatedAt = DateTime.Now
             };
             var newChatGroupMember = new ChatGroupMember
@@ -55,7 +57,7 @@ namespace TaskManagementAPI.Services.Group
                 UserId = model.UserId,
                 JoinedAt = DateTime.Now
             };
-            await _db.AddRangeAsync(newGroup, newGroupMember); 
+            await _db.AddRangeAsync(newGroup, newGroupMember,newChatGroup,newChatGroupMember); 
             await _db.SaveChangesAsync();
         }
     }
