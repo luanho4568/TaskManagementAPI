@@ -1,4 +1,5 @@
 ﻿using DataBase.Data;
+using DataBase.Models;
 using Microsoft.EntityFrameworkCore;
 using TaskManagementAPI.Models;
 using TaskManagementAPI.Utilities.Common;
@@ -24,11 +25,11 @@ namespace TaskManagementAPI.Services.Group
                 ShortDescription = model.ShortDescription,
                 OwnerId = model.UserId,
                 ProjectCount = 0,
-                MemberCount = 0,
+                MemberCount = 1,
                 Settings = model.Settings ?? GroupSettingStatus.Private.ToString(),
                 CreatedAt = DateTime.Now
             };
-            var newGroupMember = new DataBase.Models.Group_Member
+            var newGroupMember = new Group_Member
             {
                 Id = CommFunc.NewShortId(),
                 GroupId = newGroup.Id,
@@ -38,6 +39,21 @@ namespace TaskManagementAPI.Services.Group
                 TaskCount = 0,
                 Status = Status.Active.ToString(),
                 Joined_at = DateTime.Now    
+            };
+            var newChatGroup = new ChatGroup
+            {
+                Id = CommFunc.NewShortId(),
+                GroupId = newGroup.Id,
+                Name = "Default",
+                IsDefault = true,
+                CreatedAt = DateTime.Now
+            };
+            var newChatGroupMember = new ChatGroupMember
+            {
+                Id = CommFunc.NewShortId(),
+                ChatGroupId = newChatGroup.Id,
+                UserId = model.UserId,
+                JoinedAt = DateTime.Now
             };
             await _db.AddRangeAsync(newGroup, newGroupMember); 
             await _db.SaveChangesAsync();

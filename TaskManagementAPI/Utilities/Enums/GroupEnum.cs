@@ -9,4 +9,10 @@ namespace TaskManagementAPI.Utilities.Enums
         Private, // Nhóm riêng tư
         Restricted // Nhóm hạn chế (chỉ tham gia khi được mời)
     }
+
+    public enum DeleteGroupStatus
+    {
+        Deleted = 0,  // Nhóm đã bị xóa
+        NotDeleted // Nhóm chưa bị xóa
+    }
 }
