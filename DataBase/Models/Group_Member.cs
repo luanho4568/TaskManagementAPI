@@ -18,5 +18,6 @@ namespace DataBase.Models
         public DateTime Joined_at { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public string? UpdateBy { get; set; }
+
     }
 }

@@ -15,4 +15,10 @@ namespace TaskManagementAPI.Utilities.Enums
         Deleted = 0,  // Nhóm đã bị xóa
         NotDeleted // Nhóm chưa bị xóa
     }
+
+    public enum ChatGroupType
+    {
+        Default,    // Nhóm chat mặc định khi tạo nhóm
+        Custom      // Nhóm chat do người dùng tạo thêm
+    }
 }

@@ -20,4 +20,18 @@ namespace TaskManagementAPI.Models
         public ChatMessage? ChatMessage { get; set; }
         public ChatMessageSeen? ChatMessageSeen { get; set; }
     }
+
+    public record ChatGroupDTO
+    {
+        public int? groupId { get; set; }  // Nhóm cha của kênh chat này
+        public List<ChatGroup>? ChatGroup { get; set; }  // Danh sách kênh chat
+        public List<GroupMemberDTO>? GroupMembers { get; set; }  // Danh sách thành viên
+    }
+
+    public record GroupMemberDTO
+    {
+        public Group_Member GroupMembers { get; set; }  // Thông tin thành viên trong nhóm
+        public string UserName { get; set; }  // Tên người dùng
+        public string Avatar { get; set; }  // Hình đại diện của người dùng
+    }
 }

@@ -45,7 +45,8 @@ namespace TaskManagementAPI.Services.Group
             {
                 Id = CommFunc.NewShortId(),
                 GroupId = newGroup.Id,
-                Name = "Default",
+                Name = "Kênh chung",
+                Type = ChatGroupType.Default.ToString(),
                 IsDefault = true,
                 CreatedBy = user.Name,
                 CreatedAt = DateTime.Now

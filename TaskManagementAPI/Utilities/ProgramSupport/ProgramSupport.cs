@@ -14,6 +14,7 @@ namespace TaskManagementAPI.Utilities.ProgramSupport
             builder.Services.AddScoped<AccountService>();
             builder.Services.AddScoped<ProfileService>();
             builder.Services.AddScoped<GroupService>();
+            builder.Services.AddScoped<ChatService>();
         }
     }
 }
