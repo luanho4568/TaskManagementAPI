@@ -34,4 +34,5 @@ namespace TaskManagementAPI.Models
         public string UserName { get; set; }  // Tên người dùng
         public string Avatar { get; set; }  // Hình đại diện của người dùng
     }
+
 }

@@ -20,6 +20,6 @@ namespace DataBase.Models
         public string? Settings { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
-
+        public string? InviteLinkToken { get; set; }
     }
 }

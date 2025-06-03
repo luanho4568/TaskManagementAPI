@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Pqc.Crypto.Lms;
 using System.Reflection.Metadata;
+using System.Security.Claims;
 using TaskManagementAPI.Models;
 using TaskManagementAPI.Services.Group;
 using TaskManagementAPI.Utilities.Enums;
@@ -84,7 +85,7 @@ namespace TaskManagementAPI.Controllers
             }
         }
 
-
+        //User.Identity.Name
         [HttpGet("JoinGroup")]
         public async Task<IActionResult> JoinGroup(int groupId)
         {
@@ -97,10 +98,13 @@ namespace TaskManagementAPI.Controllers
                     message = "Nhóm này không tồn tại!"
                 });
             }
+            var role = await _db.Group_Member.Where(x => x.GroupId == groupId).Select(x => x.Role)
+                .FirstOrDefaultAsync();
             return Ok(new
             {
                 status = 0,
-                message = "Tham gia nhóm thành công!"
+                message = "Tham gia nhóm thành công!",
+                role
             });
         }
 
@@ -110,27 +114,27 @@ namespace TaskManagementAPI.Controllers
             try
             {
                 var groupData = await (from g in _db.Group
-                                       join gm in _db.Group_Member 
+                                       join gm in _db.Group_Member
                                        on g.Id equals gm.GroupId into groupMembers
                                        from gm in groupMembers.DefaultIfEmpty()
 
-                                       join gl in _db.Group_Level 
+                                       join gl in _db.Group_Level
                                        on g.Id equals gl.GroupId into groupLevels
                                        from gl in groupLevels.DefaultIfEmpty()
 
-                                       join cg in _db.ChatGroup 
+                                       join cg in _db.ChatGroup
                                        on g.Id equals cg.GroupId into chatGroups
                                        from cg in chatGroups.DefaultIfEmpty()
 
-                                       join cgm in _db.ChatGroupMember 
+                                       join cgm in _db.ChatGroupMember
                                        on cg.Id equals cgm.ChatGroupId into chatGroupMembers
                                        from cgm in chatGroupMembers.DefaultIfEmpty()
 
-                                       join cm in _db.ChatMessage 
+                                       join cm in _db.ChatMessage
                                        on cg.Id equals cm.ChatGroupId into chatMessages
                                        from cm in chatMessages.DefaultIfEmpty()
 
-                                       join cms in _db.ChatMessageSeen 
+                                       join cms in _db.ChatMessageSeen
                                        on cm.Id equals cms.MessageId into chatMessageSeen
                                        from cms in chatMessageSeen.DefaultIfEmpty()
 
@@ -146,7 +150,7 @@ namespace TaskManagementAPI.Controllers
                                            ChatMessageSeen = cms
                                        }).ToListAsync();
 
-                if (!groupData.Any()) 
+                if (!groupData.Any())
                 {
                     return Ok(new { status = -1, message = "Nhóm này không tồn tại!" });
                 }
@@ -179,5 +183,76 @@ namespace TaskManagementAPI.Controllers
             }
         }
 
+
+        [HttpGet("GetGroup")]
+        public async Task<IActionResult> GetGroup(int groupId)
+        {
+            try
+            {
+                var(status, message, group) = await _groupService.GetGroupService(groupId);
+                return Ok(new
+                {
+                    status = status,
+                    message = message,
+                    data = group
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = 500,
+                    message = "Đã có lỗi xảy ra ở server",
+                    error = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("GetAllMember")]
+        public async Task<IActionResult> GetAllMember(int groupId)
+        {
+            try
+            {
+                var (status, message, memberList) = await _groupService.GellAllMemberService(groupId);
+                return Ok(new
+                {
+                    status = status,
+                    message = message,
+                    data = memberList
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = 500,
+                    message = "Đã có lỗi xảy ra ở server",
+                    error = ex.Message
+                });
+            }
+        }
+
+        [HttpPost("JoinGroup")]
+        public async Task<IActionResult> JoinGroup(string token)
+        {
+            try
+            {
+                var (status, message) = await _groupService.JoinGroupService(token);
+                return Ok(new
+                {
+                    status = status,
+                    message = message,
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = 500,
+                    message = "Đã có lỗi xảy ra ở server",
+                    error = ex.Message
+                });
+            }
+        }
     }
 }
