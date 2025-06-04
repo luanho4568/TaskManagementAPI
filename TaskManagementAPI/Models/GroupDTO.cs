@@ -35,4 +35,17 @@ namespace TaskManagementAPI.Models
         public string Avatar { get; set; }  // Hình đại diện của người dùng
     }
 
+    public class JoinGroupDTO
+    {
+        public string? token { get; set; }
+        public string? description { get; set; }
+    }
+
+
+    public class ManageMemberGroupStatusDTO
+    {
+        public int? GroupId { get; set; }  // ID của nhóm
+        public string? UserId { get; set; }  // ID của người dùng
+        public string? Status { get; set; }  // Trạng thái thành viên (ví dụ: "Active", "Inactive", "Banned")
+    }
 }

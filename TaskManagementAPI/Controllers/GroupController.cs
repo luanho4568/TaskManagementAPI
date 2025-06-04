@@ -30,9 +30,9 @@ namespace TaskManagementAPI.Controllers
             try
             {
                 var query = (from g in _db.Group
-                             join gm in _db.Group_Member
-                             on g.Id equals gm.GroupId
-                             where g.OwnerId == userId
+                             join gm in _db.Group_Member on g.Id equals gm.GroupId
+                             where (g.OwnerId == userId && gm.UserId == userId) || gm.UserId == userId
+                             where gm.Status == MemberStatus.Active.ToString()
                              select new
                              {
                                  g.Id,
@@ -41,8 +41,8 @@ namespace TaskManagementAPI.Controllers
                                  gm.Role,
                                  g.MemberCount,
                                  g.ProjectCount
-
                              }).ToList();
+
                 return Ok(new
                 {
                     status = 0,
@@ -60,7 +60,28 @@ namespace TaskManagementAPI.Controllers
                 });
             }
         }
-
+        [HttpGet("JoinGroup")]
+        public async Task<IActionResult> JoinGroup(int groupId)
+        {
+            var group = await _db.Group.FirstOrDefaultAsync(x => x.Id == groupId);
+            if (group == null)
+            {
+                return Ok(new
+                {
+                    status = -1,
+                    message = "Nhóm này không tồn tại!"
+                });
+            }
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var role = await _db.Group_Member.Where(x => x.GroupId == groupId && x.UserId == userId).Select(x => x.Role)
+                .FirstOrDefaultAsync();
+            return Ok(new
+            {
+                status = 0,
+                message = "Tham gia nhóm thành công!",
+                role
+            });
+        }
 
         [HttpPost("CreateGroup")]
         public async Task<IActionResult> CreateGroup([FromBody] GroupDTO model)
@@ -83,29 +104,6 @@ namespace TaskManagementAPI.Controllers
                     error = ex.Message
                 });
             }
-        }
-
-        //User.Identity.Name
-        [HttpGet("JoinGroup")]
-        public async Task<IActionResult> JoinGroup(int groupId)
-        {
-            var group = await _db.Group.FirstOrDefaultAsync(x => x.Id == groupId);
-            if (group == null)
-            {
-                return Ok(new
-                {
-                    status = -1,
-                    message = "Nhóm này không tồn tại!"
-                });
-            }
-            var role = await _db.Group_Member.Where(x => x.GroupId == groupId).Select(x => x.Role)
-                .FirstOrDefaultAsync();
-            return Ok(new
-            {
-                status = 0,
-                message = "Tham gia nhóm thành công!",
-                role
-            });
         }
 
         [HttpDelete("DeleteGroup")]
@@ -189,7 +187,7 @@ namespace TaskManagementAPI.Controllers
         {
             try
             {
-                var(status, message, group) = await _groupService.GetGroupService(groupId);
+                var (status, message, group) = await _groupService.GetGroupService(groupId);
                 return Ok(new
                 {
                     status = status,
@@ -209,11 +207,11 @@ namespace TaskManagementAPI.Controllers
         }
 
         [HttpGet("GetAllMember")]
-        public async Task<IActionResult> GetAllMember(int groupId)
+        public async Task<IActionResult> GetAllMember(int groupId, string? statusMember)
         {
             try
             {
-                var (status, message, memberList) = await _groupService.GellAllMemberService(groupId);
+                var (status, message, memberList) = await _groupService.GellAllMemberService(groupId, statusMember);
                 return Ok(new
                 {
                     status = status,
@@ -232,12 +230,35 @@ namespace TaskManagementAPI.Controllers
             }
         }
 
-        [HttpPost("JoinGroup")]
-        public async Task<IActionResult> JoinGroup(string token)
+        [HttpPost("MemberJoinGroup")]
+        public async Task<IActionResult> MemberJoinGroup(JoinGroupDTO model)
         {
             try
             {
-                var (status, message) = await _groupService.JoinGroupService(token);
+                var (status, message) = await _groupService.JoinGroupService(model);
+                return Ok(new
+                {
+                    status = status,
+                    message = message,
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = 500,
+                    message = "Đã có lỗi xảy ra ở server",
+                    error = ex.Message
+                });
+            }
+        }
+
+        [HttpPost("ManageMemberStatus")]
+        public async Task<IActionResult> ManageMemberStatus(ManageMemberGroupStatusDTO model)
+        {
+            try
+            {
+                var (status, message) = await _groupService.ManageMemberStatusService(model);
                 return Ok(new
                 {
                     status = status,

@@ -10,12 +10,13 @@ namespace TaskManagementAPI.Utilities.Enums
         Owner    // Người tạo nhóm
     }
 
-    public enum Status
+    public enum MemberStatus
     {
 
         Active,   // Đang hoạt động
         Pending,  // Chờ duyệt vào nhóm
         Banned,   // Bị cấm
+        Rejected // Bị từ chối
     }
 
     public enum LevelStatus

@@ -11,6 +11,29 @@ namespace TaskManagementAPI.Utilities.Common
 {
     public static class CommFunc
     {
+
+        /// <summary>
+        /// Hàm tạo GroupId dạng yyyymmddxxxx
+        /// xxxx là thứ tự nhóm trong ngày, bắt đầu từ 0001
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="createAt"></param>
+        /// <returns></returns>
+        public static string GenerateGroupId(ApplicationDbContext db, DateTime? createAt = null)
+        {
+            createAt = createAt ?? DateTime.Now;
+            string datePart = createAt.Value.ToString("yyyyMMdd");
+
+            // Lấy số lượng nhóm đã tạo trong ngày createAt
+            int countGroupInThisDay = db.Group
+                .Count(g => g.CreatedAt.Date == createAt.Value.Date);
+
+            string index = (countGroupInThisDay + 1).ToString("D4");
+
+            return $"{datePart}{index}";
+        }
+
+
         public static string NewShortId()
         {
             return Convert.ToBase64String(Guid.NewGuid().ToByteArray())
