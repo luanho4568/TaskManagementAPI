@@ -175,6 +175,7 @@ namespace TaskManagementAPI.Services.Group
                     return ((int)StatusEnum.Failed, "Trạng thái thành viên không hợp lệ!");
                     break;
             }
+            member.Description = null;
             _db.Entry(member).State = EntityState.Modified;
             await _db.SaveChangesAsync();
             return ((int)StatusEnum.Success, message);
